@@ -2,13 +2,13 @@ var fs      = require('fs');
 var stitch  = require('stitch');
 
 var packager = stitch.createPackage({
-    paths: [__dirname + '/client/src']
+    paths: [__dirname + '/src']
 });
 
 packager.compile(function (err, source){
-    fs.writeFile('package.js', source, function (err) {
+    fs.writeFile('build/www/script/app.js', source, function (err) {
       if (err) throw err;
-      console.log('Compiled package.js');
+      console.log('Compiled app.js');
     });
 
     var jsp = require("uglify-js").parser;
@@ -20,8 +20,8 @@ packager.compile(function (err, source){
     ast = pro.ast_squeeze(ast); // get an AST with compression optimizations
     var final_code = pro.gen_code(ast); // compressed code here
 
-    fs.writeFile('package-min.js', final_code, function(err) {
+    fs.writeFile('build/www/script/app-min.js', final_code, function(err) {
       if (err) throw err;
-      console.log('Compiled package-min.js');
+      console.log('Compiled app-min.js');
     });
 });

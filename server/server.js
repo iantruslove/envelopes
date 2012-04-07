@@ -1,18 +1,15 @@
-var express = require('express'),
-  Resource = require('express-resource'),
-  user = require('./RestResources/UserResource.js'),
-  comment = require('./RestResources/CommentResource.js'),
-  envelope = require('./RestResources/EnvelopeResource.js');
+module.exports = function(app, express) {
+  require('express-resource');
 
-var app = express.createServer();
-app.use(express.logger());
-app.use(express.bodyParser());
-app.use("/html", express.static(__dirname + '/client/src'));
+  var user = require('./RestResources/UserResource.js'),
+      comment = require('./RestResources/CommentResource.js'),
+      envelope = require('./RestResources/EnvelopeResource.js');
 
-app.resource('api/comment', comment);
-app.resource('api/user', user);
-app.resource('api/envelope', envelope);
+  app.configure(function(){
+    app.use(express.bodyParser());
 
-var port = 3000;
-app.listen(port);
-console.log("Server running on port " + port);
+    app.resource('api/comment', comment);
+    app.resource('api/user', user);
+    app.resource('api/envelope', envelope);
+  });
+};

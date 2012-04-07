@@ -38,7 +38,14 @@ var User = mongoose.model('User', UserSchema);
 
 exports.index = function(req, res){
   User.find(function(err, docs) {
-    var userIds = _.map(docs, function(user){ return user.id; });
+    var userIds = _.map(docs, function(user){ 
+      return {
+        'id': user.id,
+        'fname': user.fname,
+        'lname': user.lname,
+        'email': user.email
+      }; 
+    });
     res.send(userIds);
   });
 };
@@ -60,7 +67,10 @@ exports.create = function(req, res){
       }
     } else {
       res.header('Location', req.originalUrl + '/' + id);
-      res.send("User " + id + " created\n", 201);
+      User.findById(id, function(err, doc) {
+        user = doc;
+        res.send(user);
+      });
     }
   });
 };
@@ -72,23 +82,40 @@ exports.show = function(req, res){
     res.send(user);
   });
 };
-//
-//exports.update = function(req, res){
-//  res.send('update forum ' + req.params.hello);
-//};
-//
-//exports.destroy = function(req, res){
-//  Comment.findById(req.params.comment, function(err, doc) {
-//    if (err) {
-//      res.send('Error finding comment to delete\n', 500);
-//    } else {
-//      if (doc) {
-//        doc.remove();
-//        res.send('deleted');
-//      } else {
-//        res.send('No such comment', 404);
-//      }
-//    }
-//  });
-//};
+
+exports.update = function(req, res){
+
+  var query = { _id: req.body.id },
+      dataToUpdate = {},
+      options = {};
+
+  _.each(['fname', 'lname', 'email'], function(fieldName) {
+    if (req.body.hasOwnProperty(fieldName)) {
+      dataToUpdate[fieldName] = req.body[fieldName];
+    }
+  });
+
+  User.update(query, dataToUpdate, options, function(err, numAffected){
+    if (err) {
+      res.send(err, 500);
+    } else {
+      res.send("", 204);
+    }
+  });
+};
+
+exports.destroy = function(req, res){
+  User.findById(req.params.user, function(err, doc) {
+    if (err) {
+      res.send('Error finding user to delete\n', 500);
+    } else {
+      if (doc) {
+        doc.remove();
+        res.send(204);
+      } else {
+        res.send('No such user', 404);
+      }
+    }
+  });
+};
 
